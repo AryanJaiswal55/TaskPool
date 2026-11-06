@@ -1,0 +1,13 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sanitize: ["", "address,undefined", "thread"]
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTASKPOOL_SANITIZE="${{ matrix.sanitize }}"
+      - run: cmake --build build -j --target taskpool_tests
+      - run: ctest --test-dir build --output-on-failure

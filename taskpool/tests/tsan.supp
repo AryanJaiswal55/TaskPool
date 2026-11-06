@@ -1,0 +1,8 @@
+# ThreadSanitizer false positive in libstdc++'s exception handling.
+#
+# std::exception_ptr keeps its reference count inside the (uninstrumented) C++ runtime,
+# so TSan cannot see the happens-before edge between "main thread finished reading the
+# exception" and "worker thread freed it". It reproduces with plain std::packaged_task and
+# std::thread, no taskpool code involved. Only these exception-object frames are suppressed.
+race:std::__exception_ptr::exception_ptr::_M_release
+race:std::runtime_error::~runtime_error
